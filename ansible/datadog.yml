@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: install and run Datadog agent
+      include_role:
+        name: datadog.datadog
+

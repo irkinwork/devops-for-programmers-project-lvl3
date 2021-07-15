@@ -1,0 +1,16 @@
+- import_playbook: datadog.yml
+- hosts: all
+  pre_tasks:
+    - name: apt update cache and upgrade
+      apt:
+        upgrade: yes
+        update_cache: true
+        cache_valid_time: 3600
+      become: yes
+
+  vars:
+    - pip_install_packages:
+      - name: docker
+
+  roles:
+    - geerlingguy.pip

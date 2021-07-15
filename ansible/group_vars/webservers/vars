@@ -1,0 +1,1 @@
+docker_token: "{{vault_docker_token}}"

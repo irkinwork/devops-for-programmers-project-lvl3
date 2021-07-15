@@ -1,0 +1,11 @@
+- import_playbook: preparing.yml
+- hosts: all
+  tags: deploy
+  tasks:
+    - name: Deploy app
+      community.docker.docker_container:
+        container_default_behavior: no_defaults
+        name: app
+        image: irkin42/devops-example-app:v1
+        ports:
+          - "5000:5000"
