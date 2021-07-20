@@ -5,7 +5,7 @@ http://project3.irkin.club/
 
 `make run` - make host preparing (update and upgrade apt cache), install datadog and deploy app
 
-`make prepare` - make host preparing (update and upgrade apt cache) and install datadog
+`make prepare` - make host preparing (update and upgrade apt cache)
 
 `make deploy` - deploy app
 

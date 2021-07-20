@@ -35,10 +35,14 @@ resource "digitalocean_droplet" "web" {
     ssh_keys = [data.digitalocean_ssh_key.ssh_key.id]
 }
 
+resource "digitalocean_domain" "domain" {
+  name       = "${var.homework}.${var.domain}"
+}
+
 resource "digitalocean_certificate" "cert" {
   name    = "${var.homework}.cert"
   type    = "lets_encrypt"
-  domains = ["${var.homework}.${var.domain}"]
+  domains = [digitalocean_domain.domain.name]
 }
 
 resource "digitalocean_loadbalancer" "lb" {
@@ -64,16 +68,11 @@ resource "digitalocean_loadbalancer" "lb" {
   }
 
   healthcheck {
-    port     = 22
+    port     = 5000
     protocol = "tcp"
   }
 
   droplet_ids = digitalocean_droplet.web.*.id
-}
-
-resource "digitalocean_domain" "domain" {
-  name       = "${var.homework}.${var.domain}"
-  ip_address = digitalocean_loadbalancer.lb.ip
 }
 
 resource "datadog_monitor" "networkmonitor" {
@@ -81,5 +80,9 @@ resource "datadog_monitor" "networkmonitor" {
   type = "service check"
   message = "@${var.mail}"
 	query = "\"http.can_connect\".over(\"instance:application_health_check_status\",\"url:http://localhost:5000\").by(\"host\",\"instance\",\"url\").last(2).count_by_status()"
+}
+
+output "droplets" {
+  value = digitalocean_droplet.web.*.ipv4_address
 }
 

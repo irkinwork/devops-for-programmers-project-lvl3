@@ -1,4 +1,3 @@
-- import_playbook: datadog.yml
 - hosts: all
   pre_tasks:
     - name: apt update cache and upgrade
