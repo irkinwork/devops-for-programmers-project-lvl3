@@ -9,5 +9,5 @@
         image: irkin42/devops-example-app:v1
         ports:
           - "5000:5000"
-          
+
 - import_playbook: datadog.yml

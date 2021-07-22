@@ -12,3 +12,6 @@ deploy:
 
 datadog:
 	ansible-playbook ansible/datadog.yml -i ansible/hosts --vault-password-file .ansible-vault
+
+lint:
+	terraform -chdir=terraform fmt

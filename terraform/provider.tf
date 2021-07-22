@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     digitalocean = {
-      source = "digitalocean/digitalocean"
+      source  = "digitalocean/digitalocean"
       version = "~> 2.0"
     }
     datadog = {
@@ -10,7 +10,6 @@ terraform {
   }
 }
 
-# Configure the DigitalOcean Provider
 provider "digitalocean" {
   token = var.do_token
 }
@@ -25,18 +24,17 @@ data "digitalocean_ssh_key" "ssh_key" {
   name = var.do_login
 }
 
-# Create a web server
 resource "digitalocean_droplet" "web" {
-    count = 2
-    image = "docker-20-04"
-    name = "${var.homework}-${count.index}"
-    region = "ams3"
-    size = "s-1vcpu-1gb"
-    ssh_keys = [data.digitalocean_ssh_key.ssh_key.id]
+  count    = 2
+  image    = "docker-20-04"
+  name     = "${var.homework}-${count.index}"
+  region   = "ams3"
+  size     = "s-1vcpu-1gb"
+  ssh_keys = [data.digitalocean_ssh_key.ssh_key.id]
 }
 
 resource "digitalocean_domain" "domain" {
-  name       = "${var.homework}.${var.domain}"
+  name = "${var.homework}.${var.domain}"
 }
 
 resource "digitalocean_certificate" "cert" {
@@ -46,16 +44,15 @@ resource "digitalocean_certificate" "cert" {
 }
 
 resource "digitalocean_loadbalancer" "lb" {
-
-  name = "${var.homework}-lb"
-  region = "ams3"
+  name                   = "${var.homework}-lb"
+  region                 = "ams3"
   redirect_http_to_https = true
   forwarding_rule {
     entry_port     = 443
     entry_protocol = "https"
 
-    target_port     = 5000
-    target_protocol = "http"
+    target_port      = 5000
+    target_protocol  = "http"
     certificate_name = digitalocean_certificate.cert.name
   }
 
@@ -76,13 +73,8 @@ resource "digitalocean_loadbalancer" "lb" {
 }
 
 resource "datadog_monitor" "networkmonitor" {
-  name = "project3 monitor"
-  type = "service check"
-  message = "@${var.mail}"
-	query = "\"http.can_connect\".over(\"instance:application_health_check_status\",\"url:http://localhost:5000\").by(\"host\",\"instance\",\"url\").last(2).count_by_status()"
+  name    = "project3 monitor"
+  type    = "service check"
+  message = "@irin.work42@gmail.com"
+  query   = "\"http.can_connect\".over(\"instance:application_health_check_status\",\"url:http://localhost:5000\").by(\"host\",\"instance\",\"url\").last(2).count_by_status()"
 }
-
-output "droplets" {
-  value = digitalocean_droplet.web.*.ipv4_address
-}
-
