@@ -1,8 +1,20 @@
-- import_playbook: preparing.yml
 - hosts: all
-  tags: deploy
+  pre_tasks:
+    - name: apt update cache and upgrade
+      tags: prepare
+      apt:
+        upgrade: yes
+        update_cache: true
+        cache_valid_time: 3600
+      become: yes
+
+  vars:
+    - pip_install_packages:
+      - name: docker
+
   tasks:
     - name: Deploy app
+      tags: deploy
       community.docker.docker_container:
         container_default_behavior: no_defaults
         name: app
@@ -10,4 +22,23 @@
         ports:
           - "5000:5000"
 
-- import_playbook: datadog.yml
+  roles:
+    - geerlingguy.pip
+
+- hosts: webservers
+  tags: datadog
+  vars:
+    datadog_api_key: "{{ dd_api_key }}"
+    datadog_site: "datadoghq.eu"
+    datadog_checks:
+      http_check:
+        init_config:
+        instances:
+          - name: Application health check status
+            url: http://localhost:5000
+            timeout: 5
+            method: GET
+  tasks:
+    - name: install and run Datadog agent
+      include_role:
+        name: datadog.datadog
